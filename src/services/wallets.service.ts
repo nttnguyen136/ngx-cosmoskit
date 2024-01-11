@@ -21,6 +21,8 @@ import {
 export class WalletService {
   walletManager: WalletManager | null = null;
   logger = new Logger('DEBUG');
+
+  defaultNameService: NameServiceName = 'icns';
   constructor() {}
 
   init(
@@ -29,7 +31,6 @@ export class WalletService {
     wallets: MainWalletBase[],
     throwErrors?: boolean,
     subscribeConnectEvents?: boolean,
-    defaultNameService?: NameServiceName,
     walletConnectOptions?: WalletConnectOptions, // SignClientOptions is required if using wallet connect v2
     signerOptions?: SignerOptions,
     endpointOptions?: EndpointOptions,
@@ -44,7 +45,7 @@ export class WalletService {
       throwErrors,
       subscribeConnectEvents,
       disableIframe,
-      defaultNameService,
+      this.defaultNameService,
       walletConnectOptions,
       signerOptions,
       endpointOptions,
@@ -52,13 +53,10 @@ export class WalletService {
     );
   }
 
-  async connect(chainName: string) {
+  async connect(chainName: string, walletName: string) {
     const walletManager = this.walletManager;
 
-    const chainWallet = walletManager.getChainWallet(
-      chainName,
-      'keplr-extension'
-    );
+    const chainWallet = walletManager.getChainWallet(chainName, walletName);
 
     chainWallet.activate();
 
@@ -68,9 +66,13 @@ export class WalletService {
       true
     );
 
-    await ChainWalletContext.connect();
+    if (chainWallet.isMobile) {
+      console.log(ChainWalletContext.qrUrl);
 
-    console.log(chainWallet);
+      return;
+    }
+
+    await ChainWalletContext.connect();
   }
 
   getChainWalletContext(

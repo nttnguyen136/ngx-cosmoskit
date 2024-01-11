@@ -16,11 +16,18 @@ export class AppComponent {
     this.initWallet();
   }
 
-  connect() {
-    console.log(keplrWallets);
-
+  mobileConnect() {
+    // 'keplr-mobile'
     try {
-      this.wallet.connect(this.chain.chain_name);
+      this.wallet.connect(this.chain.chain_name, 'keplr-mobile');
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  connect() {
+    try {
+      this.wallet.connect(this.chain.chain_name, 'keplr-extension');
     } catch (error) {
       console.log(error);
     }
