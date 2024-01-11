@@ -10,18 +10,25 @@ import { WalletService } from 'src/services/wallets.service';
 export class AppComponent {
   title = 'ngx-cosmoskit';
 
+  chain = chains.find((item) => item.chain_name == 'aura');
+
   constructor(private wallet: WalletService) {
     this.initWallet();
   }
 
   connect() {
-    this.wallet.connect();
+    console.log(keplrWallets);
+
+    try {
+      this.wallet.connect(this.chain.chain_name);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   initWallet() {
     try {
-      const chain = chains.filter((item) => item.chain_name == 'aura');
-      this.wallet.init(chain, assets, keplrWallets);
+      this.wallet.init([this.chain], assets, keplrWallets);
     } catch (error) {
       console.log(error);
     }
