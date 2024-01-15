@@ -18,13 +18,17 @@ import { getChainWalletContext } from 'src/helpers/wallet';
   providedIn: 'root',
 })
 export class WalletService {
-  walletManager: WalletManager | null = null;
-  chainWallet: ChainWalletBase;
   logger = new Logger('DEBUG');
-
   defaultNameService: NameServiceName = 'icns';
 
+  walletManager: WalletManager | null = null;
+  chainWallet: ChainWalletBase;
+
   wc$ = new BehaviorSubject<any>(null);
+
+  get wallets() {
+    return this.walletManager?.mainWallets || [];
+  }
 
   constructor() {}
 
@@ -34,7 +38,7 @@ export class WalletService {
     wallets: MainWalletBase[],
     throwErrors?: boolean,
     subscribeConnectEvents?: boolean,
-    walletConnectOptions?: WalletConnectOptions, // SignClientOptions is required if using wallet connect v2
+    walletConnectOptions?: WalletConnectOptions,
     signerOptions?: SignerOptions,
     endpointOptions?: EndpointOptions,
     sessionOptions?: SessionOptions,
@@ -71,26 +75,9 @@ export class WalletService {
 
     this.chainWallet.activate();
 
-    this.chainWallet.setActions({
-      qrUrl: () => ({
-        state: ((value: any): void => {
-          console.log('[state]', value);
-        }).bind(this),
-        data: function ok(ok): void {
-          console.log('OK', ok);
-        },
-      }),
-    });
-
     this.chainWallet
       .connect()
       .then((data) => {
-        console.log('DATA: ', {
-          res: data,
-          wallet: this.chainWallet.data,
-          x: this.chainWallet.address,
-        });
-
         this.wc$.next({
           data: {
             res: data,
@@ -109,16 +96,6 @@ export class WalletService {
     await lastValueFrom(of(null).pipe(delay(500)));
 
     const { state, data } = this.chainWallet.qrUrl;
-
-    const now = Date.now();
-
-    // while (state == 'Init') {
-    //   console.log(state);
-
-    //   if (Date.now() - now >= 5000) {
-    //     break;
-    //   }
-    // }
 
     return data;
   }

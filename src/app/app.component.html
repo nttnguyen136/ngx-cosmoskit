@@ -54,68 +54,8 @@
 
 <div class="content" role="main">
   <div class="card-container">
-    <button class="card card-small" (click)="connect()" tabindex="0">
-      <svg
-        class="material-icons"
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-      >
-        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-      </svg>
-      <span>Connect</span>
-    </button>
-
-    <button class="card card-small" (click)="mobileConnect2()" tabindex="0">
-      <svg
-        class="material-icons"
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-      >
-        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-      </svg>
-      <span>Mobile Connect</span>
-    </button>
-
-    <button class="card card-small" (click)="disconnect()" tabindex="0">
-      <svg
-        class="material-icons"
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-      >
-        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-      </svg>
-      <span>Disconnect</span>
-    </button>
-
-    <button class="card card-small" (click)="signMessage()" tabindex="0">
-      <svg
-        class="material-icons"
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-      >
-        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-      </svg>
-      <span>Sign Message</span>
-    </button>
+    <app-wallets />
   </div>
-
-  {{ dataResponse ? (dataResponse | json) : "" }}
-  <ng-container *ngIf="chainWallet">
-    {{ chainWallet.qrUrl?.state }}
-    <qrcode
-      [qrdata]="chainWallet.qrUrl?.data"
-      [width]="256"
-      [errorCorrectionLevel]="'M'"
-    ></qrcode>
-  </ng-container>
 
   <!-- Footer -->
   <footer></footer>
@@ -137,11 +77,3 @@
     />
   </svg>
 </div>
-
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * The content above * * * * * * * * * * * -->
-<!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * -->
-<!-- * * * * * * * * * * and can be replaced. * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * End of Placeholder * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
