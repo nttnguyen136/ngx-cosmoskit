@@ -20,6 +20,7 @@
     "@angular/router": "^16.2.0",
     "@cosmos-kit/core": "^2.8.1",
     "@cosmos-kit/keplr": "^2.6.1",
+    "angularx-qrcode": "^16.0.2",
     "buffer": "^6.0.3",
     "chain-registry": "^1.25.0",
     "crypto-browserify": "^3.12.0",

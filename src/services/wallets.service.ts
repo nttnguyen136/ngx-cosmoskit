@@ -51,6 +51,30 @@ export class WalletService {
       endpointOptions,
       sessionOptions
     );
+
+    this.walletManager.walletStatus;
+  }
+
+  async connectMobile(chainName: string, walletName: string) {
+    const walletManager = this.walletManager;
+
+    const chainWallet = walletManager.getChainWallet(chainName, walletName);
+
+    chainWallet.activate();
+
+    console.log(chainWallet.walletStatus);
+
+    setTimeout(() => {
+      chainWallet.connect(true).then(console.log);
+    }, 2000);
+
+    // const context = this.getChainWalletContext(
+    //   chainWallet.chainId,
+    //   chainWallet,
+    //   true
+    // );
+
+    // console.log(context);
   }
 
   async connect(chainName: string, walletName: string) {

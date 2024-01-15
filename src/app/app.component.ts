@@ -10,6 +10,8 @@ import { WalletService } from 'src/services/wallets.service';
 export class AppComponent {
   title = 'ngx-cosmoskit';
 
+  qrCode = '';
+
   chain = chains.find((item) => item.chain_name == 'aura');
 
   constructor(private wallet: WalletService) {
@@ -19,7 +21,15 @@ export class AppComponent {
   mobileConnect() {
     // 'keplr-mobile'
     try {
-      this.wallet.connect(this.chain.chain_name, 'keplr-mobile');
+      this.wallet
+        .connectMobile(this.chain.chain_name, 'keplr-mobile')
+        .then((data) => {
+          console.log(data);
+
+          // if (data) {
+          //   this.qrCode = data.data;
+          // }
+        });
     } catch (error) {
       console.log(error);
     }
@@ -35,7 +45,18 @@ export class AppComponent {
 
   initWallet() {
     try {
-      this.wallet.init([this.chain], assets, keplrWallets);
+      this.wallet.init([this.chain], assets, keplrWallets, true, true, {
+        signClient: {
+          projectId: '3fb0dea35ab62bfa3116cc507c0b3d89',
+          relayUrl: 'wss://relay.walletconnect.org',
+          metadata: {
+            name: 'HaloTrade',
+            description: 'Your Trusted DeFi Hub on Aura Network',
+            url: 'https://euphoria.halotrade.zone',
+            icons: ['https://euphoria.halotrade.zone/favicon-16x16.png'],
+          },
+        },
+      });
     } catch (error) {
       console.log(error);
     }
