@@ -1,8 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { MainWalletBase, Mutable, State, WalletBase } from '@cosmos-kit/core';
+import { Component, OnInit } from '@angular/core';
+import {
+  ChainContext,
+  ChainWalletBase,
+  ChainWalletContext,
+  MainWalletBase,
+  WalletBase,
+  WalletConnectOptions,
+} from '@cosmos-kit/core';
 import { wallets as keplrWallets } from '@cosmos-kit/keplr';
 import { wallets as leapWallets } from '@cosmos-kit/leap';
+import { LeapMobileInfo } from '@cosmos-kit/leap-mobile';
+import { IWCClient, WCClient, WCWallet } from '@cosmos-kit/walletconnect';
 import { QRCodeModule } from 'angularx-qrcode';
 import { assets, chains } from 'chain-registry';
 import { WalletService } from 'src/services/wallets.service';
@@ -16,21 +25,24 @@ import { WalletService } from 'src/services/wallets.service';
   providers: [WalletService],
 })
 export class WalletsComponent implements OnInit {
-  chainId = 'aura';
+  CHAIN = 'aura';
+  CHAINS = [this.CHAIN];
 
   chainList = chains;
 
   walletSupporteList = [...keplrWallets, ...leapWallets] as MainWalletBase[];
 
-  walletConnectionOption = {
+  walletConnectionOption: WalletConnectOptions = {
     signClient: {
-      projectId: '3fb0dea35ab62bfa3116cc507c0b3d89',
+      projectId: 'f371e1f6882d401122d20c719baf663a',
       relayUrl: 'wss://relay.walletconnect.org',
       metadata: {
-        name: 'HaloTrade',
-        description: 'Your Trusted DeFi Hub on Aura Network',
-        url: 'https://euphoria.halotrade.zone',
-        icons: ['https://euphoria.halotrade.zone/favicon-16x16.png'],
+        name: 'Aurascan',
+        description: 'Aura Network Explorer',
+        url: 'https://ngx-cosmoskit.vercel.app/',
+        icons: [
+          'https://images.aura.network/aurascan/xstaxy-assets/images/logo/aura-explorer-logo.png',
+        ],
       },
     },
   };
@@ -41,14 +53,16 @@ export class WalletsComponent implements OnInit {
 
   isModeWalletConnect: boolean;
   account;
-  chainWallet;
+  chainWallet: ChainWalletBase;
   error;
+
+  currentChain: ChainContext;
 
   constructor(private walletService: WalletService) {}
 
   ngOnInit(): void {
     try {
-      this.walletService.init(
+      this.walletService.initWalletManager(
         this.chainList,
         assets,
         this.walletSupporteList,
@@ -67,42 +81,43 @@ export class WalletsComponent implements OnInit {
       : walletInfo?.logo?.major;
   }
 
-  connect(wallet: WalletBase) {
-    const { walletName, isModeWalletConnect } = wallet ?? {};
+  disconnect() {
+    this.chainWallet.disconnect();
 
-    const chainWallet = this.walletService.walletManager.getChainWallet(
-      this.chainId,
-      walletName
+    this.account = null;
+  }
+
+  connect(wallet: WalletBase) {
+    this.chainWallet = this.walletService.getChainWallet(
+      this.CHAIN,
+      wallet.walletName
     );
 
-    chainWallet.callbacks = {
-      beforeConnect: () => {
-        console.log('beforeConnect');
-
-        console.log(chainWallet.qrUrl);
-      },
-
-      afterConnect: () => {
-        console.log('afterConnect');
-
-        console.log(chainWallet.qrUrl);
-      },
-    };
-
-    this.isModeWalletConnect = isModeWalletConnect;
-
-    this.chainWallet = chainWallet;
-
-    chainWallet
-      .connect(true)
+    this.chainWallet
+      ?.connect()
       .then(() => {
-        console.log(chainWallet.state, chainWallet.data);
-
-        this.account = chainWallet.data;
+        return this.chainWallet.client.getAccount(this.chainWallet.chainId);
       })
-      .catch((e) => {
-        this.error = e;
+      .then((account) => {
+        console.log(account);
+
+        this.account = account;
       });
+
+    if (wallet.isModeWalletConnect && wallet.isMobile) {
+      const wcWalletClient = wallet as WCWallet;
+
+      wcWalletClient
+        .initClient({
+          signClient: wallet.walletInfo?.walletconnect,
+        })
+        .then(() => {
+          wcWalletClient.clientMutable?.data?.openApp();
+        })
+        .catch((error) => {
+          this.error = { error: error };
+        });
+    }
   }
 
   sign() {}

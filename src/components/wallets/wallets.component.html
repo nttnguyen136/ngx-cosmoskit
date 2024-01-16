@@ -15,15 +15,17 @@
   </div>
 
   <div class="card-container" *ngIf="account">
-    <div>
-      {{ account | json }}
-    </div>
+    <div>Address: {{ account?.address }}</div>
     <button class="card card-small" (click)="sign()" tabindex="0">
-      <span>Sign Message </span>
+      <span> Sign Message </span>
+    </button>
+
+    <button class="card card-small" (click)="disconnect()" tabindex="0">
+      <span> Disconnect </span>
     </button>
   </div>
 
-  <div *ngIf="isModeWalletConnect && chainWallet">
+  <div *ngIf="chainWallet">
     <div>{{ chainWallet.qrUrl?.state }}</div>
     <qrcode
       *ngIf="chainWallet.qrUrl?.state == 'Done'"

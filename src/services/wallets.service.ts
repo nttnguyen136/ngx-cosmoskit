@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { AssetList, Chain } from '@chain-registry/types';
 import {
   ChainWalletBase,
+  ChainWalletContext,
   EndpointOptions,
   Logger,
   MainWalletBase,
@@ -11,7 +12,7 @@ import {
   WalletConnectOptions,
   WalletManager,
 } from '@cosmos-kit/core';
-import { BehaviorSubject, delay, lastValueFrom, of } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { getChainWalletContext } from 'src/helpers/wallet';
 
 @Injectable({
@@ -32,7 +33,7 @@ export class WalletService {
 
   constructor() {}
 
-  init(
+  initWalletManager(
     chains: Chain[],
     assetLists: AssetList[],
     wallets: MainWalletBase[],
@@ -62,71 +63,13 @@ export class WalletService {
     this.walletManager.walletStatus;
   }
 
-  getChainWallet(chainName: string, walletName: string) {
+  getChainWallet(chainName: string, walletName: string): ChainWalletBase {
     const walletManager = this.walletManager;
 
-    return walletManager.getChainWallet(chainName, walletName);
-  }
+    const wallet = walletManager.getChainWallet(chainName, walletName);
 
-  async connectMobile(chainName: string, walletName: string) {
-    const walletManager = this.walletManager;
+    wallet.activate();
 
-    this.chainWallet = walletManager.getChainWallet(chainName, walletName);
-
-    this.chainWallet.activate();
-
-    this.chainWallet
-      .connect()
-      .then((data) => {
-        this.wc$.next({
-          data: {
-            res: data,
-            walletData: this.chainWallet.data,
-            address: this.chainWallet.address,
-          },
-        });
-      })
-      .catch((error) => {
-        this.wc$.next({
-          error: error,
-        });
-        console.log(error);
-      });
-
-    await lastValueFrom(of(null).pipe(delay(500)));
-
-    const { state, data } = this.chainWallet.qrUrl;
-
-    return data;
-  }
-
-  disconnect() {
-    this.chainWallet?.disconnect().then((value) => {
-      console.log(value);
-
-      this.wc$.next(null);
-    });
-  }
-
-  async connect(chainName: string, walletName: string) {
-    const walletManager = this.walletManager;
-
-    const chainWallet = walletManager.getChainWallet(chainName, walletName);
-
-    chainWallet.activate();
-
-    const ChainWalletContext = getChainWalletContext(
-      chainWallet.chainId,
-      chainWallet,
-      true
-    );
-
-    if (chainWallet.isMobile) {
-      console.log(ChainWalletContext.qrUrl);
-
-      return;
-    }
-
-    await ChainWalletContext.connect();
+    return wallet;
   }
 }
