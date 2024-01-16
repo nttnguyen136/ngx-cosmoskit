@@ -60,7 +60,7 @@ export class WalletService {
       sessionOptions
     );
 
-    this.walletManager.walletStatus;
+    this.walletManager.onMounted().then(console.log);
   }
 
   getChainWallet(chainName: string, walletName: string): ChainWalletBase {

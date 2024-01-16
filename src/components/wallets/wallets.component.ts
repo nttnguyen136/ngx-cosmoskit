@@ -95,12 +95,8 @@ export class WalletsComponent implements OnInit {
       walletName
     );
 
-    console.log({
-      isModeWalletConnect,
-      isMobile,
-      walletName,
-      chainWalletIsMobile: this.chainWallet?.isMobile,
-    });
+
+    console.log({ isModeWalletConnect, isMobile, walletName , isChainMobile: this.chainWallet.isMobile});
 
     this.chainWallet
       ?.connect()
