@@ -1,14 +1,37 @@
-<div class="card-container">
-  <ng-container *ngFor="let wallet of wallets">
-    <button class="card card-small" (click)="connect(wallet)" tabindex="0">
-      <img
-        class="wallet-logo"
-        [src]="getLogoOfWallet(wallet.walletInfo)"
-        alt="wallet-logo"
-        width="24"
-        height="24"
-      />
-      <span>{{ wallet.walletPrettyName }}</span>
+<div class="wallets-container">
+  <div class="card-container" *ngIf="!account">
+    <ng-container *ngFor="let wallet of wallets">
+      <button class="card card-small" (click)="connect(wallet)" tabindex="0">
+        <img
+          class="wallet-logo"
+          [src]="getLogoOfWallet(wallet.walletInfo)"
+          alt="wallet-logo"
+          width="24"
+          height="24"
+        />
+        <span>{{ wallet.walletPrettyName }}</span>
+      </button>
+    </ng-container>
+  </div>
+
+  <div class="card-container" *ngIf="account">
+    <div>
+      {{ account | json }}
+    </div>
+    <button class="card card-small" (click)="sign()" tabindex="0">
+      <span>Sign Message </span>
     </button>
-  </ng-container>
+  </div>
+
+  <div *ngIf="isModeWalletConnect && chainWallet">
+    <div>{{ chainWallet.qrUrl?.state }}</div>
+    <qrcode
+      *ngIf="chainWallet.qrUrl?.state == 'Done'"
+      [qrdata]="chainWallet.qrUrl?.data"
+      [width]="256"
+      [errorCorrectionLevel]="'M'"
+    ></qrcode>
+  </div>
+
+  {{ error | json }}
 </div>

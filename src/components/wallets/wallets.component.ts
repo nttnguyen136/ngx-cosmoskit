@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { MainWalletBase, WalletBase } from '@cosmos-kit/core';
+import { MainWalletBase, Mutable, State, WalletBase } from '@cosmos-kit/core';
 import { wallets as keplrWallets } from '@cosmos-kit/keplr';
 import { wallets as leapWallets } from '@cosmos-kit/leap';
+import { QRCodeModule } from 'angularx-qrcode';
 import { assets, chains } from 'chain-registry';
 import { WalletService } from 'src/services/wallets.service';
 
@@ -11,14 +12,11 @@ import { WalletService } from 'src/services/wallets.service';
   selector: 'app-wallets',
   styleUrls: ['./wallets.component.scss'],
   templateUrl: './wallets.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule],
+  imports: [CommonModule, QRCodeModule],
   providers: [WalletService],
 })
 export class WalletsComponent implements OnInit {
-  get wallets() {
-    return this.walletService.wallets;
-  }
+  chainId = 'aura';
 
   chainList = chains;
 
@@ -36,6 +34,15 @@ export class WalletsComponent implements OnInit {
       },
     },
   };
+
+  get wallets() {
+    return this.walletService.wallets;
+  }
+
+  isModeWalletConnect: boolean;
+  account;
+  chainWallet;
+  error;
 
   constructor(private walletService: WalletService) {}
 
@@ -61,8 +68,42 @@ export class WalletsComponent implements OnInit {
   }
 
   connect(wallet: WalletBase) {
-    console.log(wallet?.state);
+    const { walletName, isModeWalletConnect } = wallet ?? {};
 
-    console.log(wallet.walletInfo);
+    const chainWallet = this.walletService.walletManager.getChainWallet(
+      this.chainId,
+      walletName
+    );
+
+    chainWallet.callbacks = {
+      beforeConnect: () => {
+        console.log('beforeConnect');
+
+        console.log(chainWallet.qrUrl);
+      },
+
+      afterConnect: () => {
+        console.log('afterConnect');
+
+        console.log(chainWallet.qrUrl);
+      },
+    };
+
+    this.isModeWalletConnect = isModeWalletConnect;
+
+    this.chainWallet = chainWallet;
+
+    chainWallet
+      .connect(true)
+      .then(() => {
+        console.log(chainWallet.state, chainWallet.data);
+
+        this.account = chainWallet.data;
+      })
+      .catch((e) => {
+        this.error = e;
+      });
   }
+
+  sign() {}
 }
