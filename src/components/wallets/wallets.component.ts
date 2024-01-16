@@ -88,9 +88,12 @@ export class WalletsComponent implements OnInit {
   }
 
   connect(wallet: WalletBase) {
+    const { isModeWalletConnect, isMobile, walletName } = wallet;
+    console.log({ isModeWalletConnect, isMobile, walletName });
+
     this.chainWallet = this.walletService.getChainWallet(
       this.CHAIN,
-      wallet.walletName
+      walletName
     );
 
     this.chainWallet
@@ -102,9 +105,12 @@ export class WalletsComponent implements OnInit {
         console.log(account);
 
         this.account = account;
+      }).catch(e => {
+        console.log('Eeee', e);
+
       });
 
-    if (wallet.isModeWalletConnect && wallet.isMobile) {
+    if (isModeWalletConnect && isMobile) {
       const wcWalletClient = wallet as WCWallet;
 
       wcWalletClient
@@ -112,9 +118,13 @@ export class WalletsComponent implements OnInit {
           signClient: wallet.walletInfo?.walletconnect,
         })
         .then(() => {
+          console.log('Open app...');
+
           wcWalletClient.clientMutable?.data?.openApp();
         })
         .catch((error) => {
+          console.log('Errorr....', error);
+
           this.error = { error: error };
         });
     }
