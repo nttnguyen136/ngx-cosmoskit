@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { AssetList, Chain } from '@chain-registry/types';
 import {
   ChainWalletBase,
@@ -13,12 +13,11 @@ import {
   WalletManager,
 } from '@cosmos-kit/core';
 import { BehaviorSubject } from 'rxjs';
-import { getChainWalletContext } from 'src/helpers/wallet';
 
 @Injectable({
   providedIn: 'root',
 })
-export class WalletService {
+export class WalletService implements OnDestroy {
   logger = new Logger('DEBUG');
   defaultNameService: NameServiceName = 'icns';
 
@@ -33,18 +32,33 @@ export class WalletService {
 
   constructor() {}
 
-  initWalletManager(
-    chains: Chain[],
-    assetLists: AssetList[],
-    wallets: MainWalletBase[],
-    throwErrors?: boolean,
-    subscribeConnectEvents?: boolean,
-    walletConnectOptions?: WalletConnectOptions,
-    signerOptions?: SignerOptions,
-    endpointOptions?: EndpointOptions,
-    sessionOptions?: SessionOptions,
-    disableIframe?: boolean
-  ) {
+  ngOnDestroy(): void {
+    this.walletManager?.onUnmounted();
+  }
+
+  initWalletManager({
+    chains,
+    assetLists,
+    wallets,
+    throwErrors,
+    subscribeConnectEvents,
+    walletConnectOptions,
+    signerOptions,
+    endpointOptions,
+    sessionOptions,
+    disableIframe,
+  }: {
+    chains: Chain[];
+    assetLists: AssetList[];
+    wallets: MainWalletBase[];
+    throwErrors?: boolean;
+    subscribeConnectEvents?: boolean;
+    walletConnectOptions?: WalletConnectOptions;
+    signerOptions?: SignerOptions;
+    endpointOptions?: EndpointOptions;
+    sessionOptions?: SessionOptions;
+    disableIframe?: boolean;
+  }) {
     this.walletManager = new WalletManager(
       chains,
       assetLists,
@@ -60,7 +74,14 @@ export class WalletService {
       sessionOptions
     );
 
-    this.walletManager.onMounted().then(console.log);
+    this.walletManager
+      .onMounted()
+      .then(() => {
+        console.log('Mounted');
+      })
+      .catch((e) => {
+        console.log('Mount Error', e);
+      });
   }
 
   getChainWallet(chainName: string, walletName: string): ChainWalletBase {

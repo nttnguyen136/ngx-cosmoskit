@@ -1,17 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+
 import {
   ChainContext,
   ChainWalletBase,
-  ChainWalletContext,
   MainWalletBase,
   WalletBase,
   WalletConnectOptions,
 } from '@cosmos-kit/core';
 import { wallets as keplrWallets } from '@cosmos-kit/keplr';
 import { wallets as leapWallets } from '@cosmos-kit/leap';
-import { LeapMobileInfo } from '@cosmos-kit/leap-mobile';
-import { IWCClient, WCClient, WCWallet } from '@cosmos-kit/walletconnect';
+import { WCWallet } from '@cosmos-kit/walletconnect';
 import { QRCodeModule } from 'angularx-qrcode';
 import { assets, chains } from 'chain-registry';
 import { WalletService } from 'src/services/wallets.service';
@@ -52,8 +51,8 @@ export class WalletsComponent implements OnInit {
   }
 
   isModeWalletConnect: boolean;
-  account;
   chainWallet: ChainWalletBase;
+  account;
   error;
 
   currentChain: ChainContext;
@@ -62,16 +61,18 @@ export class WalletsComponent implements OnInit {
 
   ngOnInit(): void {
     try {
-      this.walletService.initWalletManager(
-        this.chainList,
-        assets,
-        this.walletSupporteList,
-        true,
-        true,
-        this.walletConnectionOption
-      );
+      this.walletService.initWalletManager({
+        chains: this.chainList.filter((item) => item.chain_name == this.CHAIN),
+        assetLists: assets,
+        wallets: this.walletSupporteList.filter((x) => x.isModeWalletConnect),
+        throwErrors: true,
+        walletConnectOptions: this.walletConnectionOption,
+        disableIframe: true,
+      });
+
+      console.log(this.walletService.walletManager.isMobile);
     } catch (error) {
-      console.log(error);
+      console.log('initWalletManager error', error);
     }
   }
 
@@ -94,9 +95,6 @@ export class WalletsComponent implements OnInit {
       this.CHAIN,
       walletName
     );
-
-
-    console.log({ isModeWalletConnect, isMobile, walletName , isChainMobile: this.chainWallet.isMobile});
 
     this.chainWallet
       ?.connect()
