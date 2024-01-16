@@ -120,7 +120,7 @@ export class WalletsComponent implements OnInit {
         .then(() => {
           console.log('Open app...');
 
-          wcWalletClient.clientMutable?.data?.openApp();
+          wcWalletClient.clientMutable?.data?.openApp(true);
         })
         .catch((error) => {
           console.log('Errorr....', error);
