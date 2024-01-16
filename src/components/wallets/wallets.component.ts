@@ -111,26 +111,27 @@ export class WalletsComponent implements OnInit {
       });
 
     if (isModeWalletConnect) {
-      const wcWalletClient = wallet as WCWallet;
-
       console.log(wallet.walletInfo?.walletconnect);
+      const wcWalletClient = wallet as WCWallet;
+      wcWalletClient.clientMutable?.data?.openApp(true);
 
-      wcWalletClient
-        .initClient({
-          signClient: wallet.walletInfo?.walletconnect,
-        })
-        .then(() => {
-          console.log(wcWalletClient.state);
 
-          console.log('Open app...');
+      // wcWalletClient
+      //   .initClient({
+      //     signClient: wallet.walletInfo?.walletconnect,
+      //   })
+      //   .then(() => {
+      //     console.log(wcWalletClient.state);
 
-          wcWalletClient.clientMutable?.data?.openApp(true);
-        })
-        .catch((error) => {
-          console.log('Errorr....', error);
+      //     console.log('Open app...');
 
-          this.error = { error: error };
-        });
+      //     wcWalletClient.clientMutable?.data?.openApp(true);
+      //   })
+      //   .catch((error) => {
+      //     console.log('Errorr....', error);
+
+      //     this.error = { error: error };
+      //   });
     }
   }
 
