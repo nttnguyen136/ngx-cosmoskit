@@ -89,17 +89,18 @@ export class WalletsComponent implements OnInit {
 
   connect(wallet: WalletBase) {
     const { isModeWalletConnect, isMobile, walletName } = wallet;
-    console.log({
-      isModeWalletConnect,
-      isMobile,
-      walletName,
-      chainWalletIsMobile: this.chainWallet.isMobile,
-    });
 
     this.chainWallet = this.walletService.getChainWallet(
       this.CHAIN,
       walletName
     );
+
+    console.log({
+      isModeWalletConnect,
+      isMobile,
+      walletName,
+      chainWalletIsMobile: this.chainWallet?.isMobile,
+    });
 
     this.chainWallet
       ?.connect()
