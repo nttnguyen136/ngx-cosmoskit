@@ -89,7 +89,12 @@ export class WalletsComponent implements OnInit {
 
   connect(wallet: WalletBase) {
     const { isModeWalletConnect, isMobile, walletName } = wallet;
-    console.log({ isModeWalletConnect, isMobile, walletName });
+    console.log({
+      isModeWalletConnect,
+      isMobile,
+      walletName,
+      chainWalletIsMobile: this.chainWallet.isMobile,
+    });
 
     this.chainWallet = this.walletService.getChainWallet(
       this.CHAIN,
@@ -105,12 +110,12 @@ export class WalletsComponent implements OnInit {
         console.log(account);
 
         this.account = account;
-      }).catch(e => {
+      })
+      .catch((e) => {
         console.log('Eeee', e);
-
       });
 
-    if (isModeWalletConnect && isMobile) {
+    if (isModeWalletConnect) {
       const wcWalletClient = wallet as WCWallet;
 
       wcWalletClient
