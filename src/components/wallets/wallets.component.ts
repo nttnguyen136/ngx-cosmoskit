@@ -113,11 +113,15 @@ export class WalletsComponent implements OnInit {
     if (isModeWalletConnect) {
       const wcWalletClient = wallet as WCWallet;
 
+      console.log(wallet.walletInfo?.walletconnect);
+
       wcWalletClient
         .initClient({
           signClient: wallet.walletInfo?.walletconnect,
         })
         .then(() => {
+          console.log(wcWalletClient.state);
+
           console.log('Open app...');
 
           wcWalletClient.clientMutable?.data?.openApp(true);
