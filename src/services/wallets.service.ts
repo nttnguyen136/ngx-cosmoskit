@@ -123,4 +123,12 @@ export class WalletService implements OnDestroy {
 
     return getChainWalletContext(this.chain.chain_id, chainWallet, true);
   }
+
+  signWithWC(chainWallet) {
+    return chainWallet.client.signArbitrary(
+      this.chain.chain_id,
+      chainWallet.address,
+      'Test message'
+    );
+  }
 }

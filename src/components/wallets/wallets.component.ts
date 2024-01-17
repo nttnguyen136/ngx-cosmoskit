@@ -14,6 +14,8 @@ import { WCWallet } from '@cosmos-kit/walletconnect';
 import { QRCodeModule } from 'angularx-qrcode';
 import { assets, chains } from 'chain-registry';
 import { WalletService } from 'src/services/wallets.service';
+import { MsgDelegate } from 'cosmjs-types/cosmos/staking/v1beta1/tx';
+import { GenerateDelegateMessage } from 'src/helpers/message';
 
 @Component({
   standalone: true,
@@ -106,6 +108,55 @@ export class WalletsComponent implements OnInit {
   }
 
   sign() {
+    if (this.chainWallet.isModeWalletConnect) {
+      this.signWithWC();
+    } else {
+      this.signWithContext();
+    }
+  }
+
+  signWithWC() {
+    this.walletService
+      .signWithWC('Test message')
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  async broadcast() {
+    const { address, signAndBroadcast } =
+      this.walletService.getChainWalletContext(this.chainWallet);
+
+    const message = GenerateDelegateMessage(
+      address,
+      {
+        to: 'aura1afuqcya9g59v0slx4e930gzytxvpx2c43xhvtx',
+        amount: '51469',
+      },
+      'uaura'
+    );
+
+    signAndBroadcast([message], {
+      gas: '99068',
+      amount: [
+        {
+          amount: '19814',
+          denom: 'uaura',
+        },
+      ],
+    })
+      .then((r) => {
+        console.log(r);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  }
+
+  signWithContext() {
     const chainContext = this.walletService.getChainWalletContext(
       this.chainWallet
     );
