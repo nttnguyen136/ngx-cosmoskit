@@ -1,8 +1,8 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { AssetList, Chain } from '@chain-registry/types';
 import {
+  ChainName,
   ChainWalletBase,
-  ChainWalletContext,
   EndpointOptions,
   Logger,
   MainWalletBase,
@@ -11,8 +11,10 @@ import {
   SignerOptions,
   WalletConnectOptions,
   WalletManager,
+  WalletName,
 } from '@cosmos-kit/core';
-import { BehaviorSubject } from 'rxjs';
+import { assets } from 'chain-registry';
+import { getChainWalletContext } from 'src/helpers/wallet';
 
 @Injectable({
   providedIn: 'root',
@@ -20,11 +22,9 @@ import { BehaviorSubject } from 'rxjs';
 export class WalletService implements OnDestroy {
   logger = new Logger('DEBUG');
   defaultNameService: NameServiceName = 'icns';
-
   walletManager: WalletManager | null = null;
-  chainWallet: ChainWalletBase;
 
-  wc$ = new BehaviorSubject<any>(null);
+  chain: Chain;
 
   get wallets() {
     return this.walletManager?.mainWallets || [];
@@ -36,9 +36,8 @@ export class WalletService implements OnDestroy {
     this.walletManager?.onUnmounted();
   }
 
-  initWalletManager({
-    chains,
-    assetLists,
+  async initWalletManager({
+    chain,
     wallets,
     throwErrors,
     subscribeConnectEvents,
@@ -48,8 +47,7 @@ export class WalletService implements OnDestroy {
     sessionOptions,
     disableIframe,
   }: {
-    chains: Chain[];
-    assetLists: AssetList[];
+    chain: Chain;
     wallets: MainWalletBase[];
     throwErrors?: boolean;
     subscribeConnectEvents?: boolean;
@@ -59,8 +57,18 @@ export class WalletService implements OnDestroy {
     sessionOptions?: SessionOptions;
     disableIframe?: boolean;
   }) {
+    if (!chain) {
+      throw new Error('Chain is required');
+    }
+
+    this.chain = chain;
+
+    const assetLists = assets.filter(
+      (asset) => (asset.chain_name = chain.chain_name)
+    );
+
     this.walletManager = new WalletManager(
-      chains,
+      [chain],
       assetLists,
       wallets,
       this.logger,
@@ -74,23 +82,45 @@ export class WalletService implements OnDestroy {
       sessionOptions
     );
 
-    this.walletManager
-      .onMounted()
-      .then(() => {
-        console.log('Mounted');
-      })
-      .catch((e) => {
-        console.log('Mount Error', e);
-      });
+    await this.walletManager.onMounted();
   }
 
-  getChainWallet(chainName: string, walletName: string): ChainWalletBase {
-    const walletManager = this.walletManager;
+  get state() {
+    return this.walletManager.state;
+  }
 
-    const wallet = walletManager.getChainWallet(chainName, walletName);
+  getChainWallet(walletName: WalletName): ChainWalletBase {
+    const wallet = this.walletManager.getChainWallet(
+      this.chain.chain_name,
+      walletName
+    );
 
     wallet.activate();
 
     return wallet;
+  }
+
+  getMainWallet() {
+    return this.walletManager.getMainWallet(this.chain.chain_name);
+  }
+
+  getWalletRepo() {
+    return this.walletManager.getWalletRepo(this.chain.chain_name);
+  }
+
+  getChainRecord() {
+    return this.walletManager.getChainRecord(this.chain.chain_name);
+  }
+
+  getChainLogo() {
+    return this.walletManager.getChainLogo(this.chain.chain_name);
+  }
+
+  getChainWalletContext(chainWallet: ChainWalletBase) {
+    if (!this.chain) {
+      return undefined;
+    }
+
+    return getChainWalletContext(this.chain.chain_id, chainWallet, true);
   }
 }

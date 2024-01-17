@@ -62,9 +62,8 @@ export class WalletsComponent implements OnInit {
   ngOnInit(): void {
     try {
       this.walletService.initWalletManager({
-        chains: this.chainList.filter((item) => item.chain_name == this.CHAIN),
-        assetLists: assets,
-        wallets: this.walletSupporteList.filter((x) => x.isModeWalletConnect),
+        chain: this.chainList.find((item) => item.chain_name == this.CHAIN),
+        wallets: this.walletSupporteList,
         throwErrors: true,
         walletConnectOptions: this.walletConnectionOption,
         disableIframe: true,
@@ -89,12 +88,7 @@ export class WalletsComponent implements OnInit {
   }
 
   connect(wallet: WalletBase) {
-    const { isModeWalletConnect, isMobile, walletName } = wallet;
-
-    this.chainWallet = this.walletService.getChainWallet(
-      this.CHAIN,
-      walletName
-    );
+    this.chainWallet = this.walletService.getChainWallet(wallet.walletName);
 
     this.chainWallet
       ?.connect()
@@ -109,13 +103,22 @@ export class WalletsComponent implements OnInit {
       .catch((e) => {
         console.log('Eeee', e);
       });
-
-    // if (isModeWalletConnect) {
-    //   console.log(wallet.walletInfo?.walletconnect);
-    //   const wcWalletClient = wallet as WCWallet;
-    //   wcWalletClient.clientMutable?.data?.openApp(true);
-    // }
   }
 
-  sign() {}
+  sign() {
+    const chainContext = this.walletService.getChainWalletContext(
+      this.chainWallet
+    );
+
+    if (chainContext) {
+      chainContext
+        .signArbitrary(chainContext.address, 'Test message')
+        .then((data) => {
+          console.log(data);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  }
 }
