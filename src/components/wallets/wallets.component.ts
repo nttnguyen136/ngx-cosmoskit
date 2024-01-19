@@ -27,10 +27,9 @@ import { WalletService } from 'src/services/wallets.service';
   providers: [WalletService],
 })
 export class WalletsComponent implements OnInit {
-  CHAIN = 'aura';
-  CHAINS = [this.CHAIN];
+  CHAIN_NAME = 'sei';
 
-  chainList = chains;
+  chain = chains.find((c) => c.chain_name == this.CHAIN_NAME);
 
   walletSupporteList = [...keplrWallets, ...leapWallets] as MainWalletBase[];
 
@@ -51,8 +50,6 @@ export class WalletsComponent implements OnInit {
 
   signerOptions: SignerOptions = {
     signingCosmwasm: (chain: Chain) => {
-      console.log(chain);
-
       const coin = chain.fees.fee_tokens[0];
 
       //convert gasPrice to Decimal
@@ -87,9 +84,11 @@ export class WalletsComponent implements OnInit {
   constructor(private walletService: WalletService) {}
 
   ngOnInit(): void {
+    console.log(chains);
+
     try {
       this.walletService.initWalletManager({
-        chain: chains.find((item) => item.chain_name == this.CHAIN),
+        chain: this.chain,
         wallets: this.walletSupporteList,
         throwErrors: true,
         walletConnectOptions: this.walletConnectionOption,
@@ -159,10 +158,10 @@ export class WalletsComponent implements OnInit {
     const message = GenerateDelegateMessage(
       address,
       {
-        to: 'auravaloper1g4sdn3py2ldhwegll3vtvz0xakt65nc0ryxcc4',
+        to: 'seivaloper1y82m5y3wevjneamzg0pmx87dzanyxzht0kepvn',
         amount: '51469',
       },
-      'uaura'
+      this.chain.fees.fee_tokens[0].denom
     );
 
     signAndBroadcast([message], {
@@ -170,7 +169,7 @@ export class WalletsComponent implements OnInit {
       amount: [
         {
           amount: '19814',
-          denom: 'uaura',
+          denom: this.chain.fees.fee_tokens[0].denom,
         },
       ],
     })
