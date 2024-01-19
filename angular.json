@@ -25,7 +25,20 @@
             "inlineStyleLanguage": "scss",
             "assets": ["src/favicon.ico", "src/assets"],
             "styles": ["src/styles.scss"],
-            "scripts": []
+            "scripts": [],
+            "allowedCommonJsDependencies": [
+              "@cosmjs/stargate",
+              "chain-registry",
+              "@cosmjs/math",
+              "@stablelib/random",
+              "@stablelib/sha256",
+              "@stablelib/x25519",
+              "@walletconnect/window-getters",
+              "@walletconnect/window-metadata",
+              "query-string",
+              "qrcode",
+              "eruda"
+            ]
           },
           "configurations": {
             "production": {

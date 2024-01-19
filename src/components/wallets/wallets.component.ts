@@ -1,21 +1,22 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-
+import { Chain } from '@chain-registry/types';
+import { Decimal } from '@cosmjs/math';
+import { GasPrice } from '@cosmjs/stargate';
 import {
   ChainContext,
   ChainWalletBase,
   MainWalletBase,
+  SignerOptions,
   WalletBase,
   WalletConnectOptions,
 } from '@cosmos-kit/core';
 import { wallets as keplrWallets } from '@cosmos-kit/keplr';
 import { wallets as leapWallets } from '@cosmos-kit/leap';
-import { WCWallet } from '@cosmos-kit/walletconnect';
 import { QRCodeModule } from 'angularx-qrcode';
-import { assets, chains } from 'chain-registry';
-import { WalletService } from 'src/services/wallets.service';
-import { MsgDelegate } from 'cosmjs-types/cosmos/staking/v1beta1/tx';
+import { chains } from 'chain-registry';
 import { GenerateDelegateMessage } from 'src/helpers/message';
+import { WalletService } from 'src/services/wallets.service';
 
 @Component({
   standalone: true,
@@ -48,6 +49,30 @@ export class WalletsComponent implements OnInit {
     },
   };
 
+  signerOptions: SignerOptions = {
+    signingCosmwasm: (chain: Chain) => {
+      console.log(chain);
+
+      const coin = chain.fees.fee_tokens[0];
+
+      //convert gasPrice to Decimal
+      let gasStep = coin.average_gas_price;
+      let pow = 1;
+
+      while (!Number.isInteger(gasStep)) {
+        gasStep = gasStep * Math.pow(10, pow);
+        pow++;
+      }
+
+      return {
+        gasPrice: new GasPrice(
+          Decimal.fromAtomics(gasStep.toString(), pow),
+          chain.daemon_name
+        ),
+      };
+    },
+  };
+
   get wallets() {
     return this.walletService.wallets;
   }
@@ -64,11 +89,12 @@ export class WalletsComponent implements OnInit {
   ngOnInit(): void {
     try {
       this.walletService.initWalletManager({
-        chain: this.chainList.find((item) => item.chain_name == this.CHAIN),
+        chain: chains.find((item) => item.chain_name == this.CHAIN),
         wallets: this.walletSupporteList,
         throwErrors: true,
         walletConnectOptions: this.walletConnectionOption,
         disableIframe: true,
+        signerOptions: this.signerOptions,
       });
 
       console.log(this.walletService.walletManager.isMobile);
@@ -133,7 +159,7 @@ export class WalletsComponent implements OnInit {
     const message = GenerateDelegateMessage(
       address,
       {
-        to: 'aura1afuqcya9g59v0slx4e930gzytxvpx2c43xhvtx',
+        to: 'auravaloper1g4sdn3py2ldhwegll3vtvz0xakt65nc0ryxcc4',
         amount: '51469',
       },
       'uaura'
