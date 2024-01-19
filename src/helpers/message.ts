@@ -8,7 +8,7 @@ export function GenerateDelegateMessage(
   /* istanbul ignore next */
   const msg = MsgDelegate.fromPartial({
     delegatorAddress: senderAddress,
-    validatorAddress: to[0],
+    validatorAddress: to,
     amount: {
       amount: amount,
       denom: coinMinimalDenom,
