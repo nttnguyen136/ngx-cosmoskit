@@ -20,6 +20,7 @@
     "@angular/router": "^16.2.0",
     "@cosmjs/cosmwasm-stargate": "^0.32.2",
     "@cosmjs/stargate": "^0.32.2",
+    "@cosmos-kit/coin98": "^2.6.5",
     "@cosmos-kit/core": "^2.8.1",
     "@cosmos-kit/keplr": "^2.6.1",
     "@cosmos-kit/leap": "^2.6.2",

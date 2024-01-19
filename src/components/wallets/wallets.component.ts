@@ -13,6 +13,7 @@ import {
 } from '@cosmos-kit/core';
 import { wallets as keplrWallets } from '@cosmos-kit/keplr';
 import { wallets as leapWallets } from '@cosmos-kit/leap';
+import { wallets as coin98Wallets } from '@cosmos-kit/coin98';
 import { QRCodeModule } from 'angularx-qrcode';
 import { chains } from 'chain-registry';
 import { GenerateDelegateMessage } from 'src/helpers/message';
@@ -31,7 +32,11 @@ export class WalletsComponent implements OnInit {
 
   chain = chains.find((c) => c.chain_name == this.CHAIN_NAME);
 
-  walletSupporteList = [...keplrWallets, ...leapWallets] as MainWalletBase[];
+  walletSupportedList = [
+    ...keplrWallets,
+    ...leapWallets,
+    ...coin98Wallets,
+  ] as MainWalletBase[];
 
   walletConnectionOption: WalletConnectOptions = {
     signClient: {
@@ -89,7 +94,7 @@ export class WalletsComponent implements OnInit {
     try {
       this.walletService.initWalletManager({
         chain: this.chain,
-        wallets: this.walletSupporteList,
+        wallets: this.walletSupportedList,
         throwErrors: true,
         walletConnectOptions: this.walletConnectionOption,
         disableIframe: true,
