@@ -1,7 +1,12 @@
 <div class="wallets-container">
   <div class="card-container" *ngIf="!account">
     <ng-container *ngFor="let wallet of wallets">
-      <button class="card card-small" (click)="connect(wallet)" tabindex="0">
+      <button
+        class="card card-small"
+        (click)="connect(wallet)"
+        tabindex="0"
+        *ngIf="wallet.clientMutable.state != 'Error'"
+      >
         <img
           class="wallet-logo"
           [src]="getLogoOfWallet(wallet.walletInfo)"

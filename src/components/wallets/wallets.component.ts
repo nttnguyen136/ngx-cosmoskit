@@ -18,6 +18,7 @@ import { QRCodeModule } from 'angularx-qrcode';
 import { chains } from 'chain-registry';
 import { GenerateDelegateMessage } from 'src/helpers/message';
 import { WalletService } from 'src/services/wallets.service';
+import { wallets as coin98MobileWallets } from 'src/utils/wallets/coin98-mobile';
 
 @Component({
   standalone: true,
@@ -36,6 +37,7 @@ export class WalletsComponent implements OnInit {
     ...keplrWallets,
     ...leapWallets,
     ...coin98Wallets,
+    ...coin98MobileWallets,
   ] as MainWalletBase[];
 
   walletConnectionOption: WalletConnectOptions = {
@@ -120,6 +122,8 @@ export class WalletsComponent implements OnInit {
   }
 
   connect(wallet: WalletBase) {
+    console.log(this.wallets);
+
     this.chainWallet = this.walletService.getChainWallet(wallet.walletName);
 
     this.chainWallet
