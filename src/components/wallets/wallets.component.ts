@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { Chain } from '@chain-registry/types';
 import { Decimal } from '@cosmjs/math';
 import { GasPrice } from '@cosmjs/stargate';
+import { wallets as coin98Wallets } from '@cosmos-kit/coin98';
 import {
   ChainContext,
   ChainWalletBase,
@@ -13,12 +14,12 @@ import {
 } from '@cosmos-kit/core';
 import { wallets as keplrWallets } from '@cosmos-kit/keplr';
 import { wallets as leapWallets } from '@cosmos-kit/leap';
-import { wallets as coin98Wallets } from '@cosmos-kit/coin98';
 import { QRCodeModule } from 'angularx-qrcode';
 import { chains } from 'chain-registry';
 import { GenerateDelegateMessage } from 'src/helpers/message';
 import { WalletService } from 'src/services/wallets.service';
 import { wallets as coin98MobileWallets } from 'src/utils/wallets/coin98-mobile';
+import { wallets as walletConnects } from 'src/utils/wallets/wallet-connect/wc';
 
 @Component({
   standalone: true,
@@ -38,6 +39,7 @@ export class WalletsComponent implements OnInit {
     ...leapWallets,
     ...coin98Wallets,
     ...coin98MobileWallets,
+    ...walletConnects,
   ] as MainWalletBase[];
 
   walletConnectionOption: WalletConnectOptions = {
@@ -91,8 +93,6 @@ export class WalletsComponent implements OnInit {
   constructor(private walletService: WalletService) {}
 
   ngOnInit(): void {
-    console.log(chains);
-
     try {
       this.walletService.initWalletManager({
         chain: this.chain,
@@ -102,8 +102,6 @@ export class WalletsComponent implements OnInit {
         disableIframe: true,
         signerOptions: this.signerOptions,
       });
-
-      console.log(this.walletService.walletManager.isMobile);
     } catch (error) {
       console.log('initWalletManager error', error);
     }
@@ -116,7 +114,9 @@ export class WalletsComponent implements OnInit {
   }
 
   disconnect() {
-    this.chainWallet.disconnect();
+    this.chainWallet.disconnect(true, {
+      walletconnect: { removeAllPairings: true },
+    });
 
     this.account = null;
   }

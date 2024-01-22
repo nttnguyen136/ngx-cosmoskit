@@ -24,7 +24,7 @@
     "@cosmos-kit/core": "^2.8.1",
     "@cosmos-kit/keplr": "^2.6.1",
     "@cosmos-kit/leap": "^2.6.2",
-    "@cosmos-kit/walletconnect": "^2.5.2",
+    "@cosmos-kit/walletconnect": "^2.5.5",
     "angularx-qrcode": "^16.0.2",
     "buffer": "^6.0.3",
     "chain-registry": "^1.25.0",
